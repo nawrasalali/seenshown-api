@@ -47,20 +47,7 @@ await app.register(rawBody, {
 });
 
 await app.register(cors, {
-  origin: (origin, cb) => {
-    const allowed = ['https://seenshown-core.vercel.app',
-      'https://app.seenshown.com',
-      'https://partners.seenshown.com',
-      'https://seenshown.com',
-      'https://seenshown.ai',
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:3002',
-    ];
-    // Allow embed iframes (null origin) and listed origins
-    if (!origin || allowed.includes(origin)) return cb(null, true);
-    cb(new Error('CORS: Not allowed'), false);
-  },
+  origin: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
 });

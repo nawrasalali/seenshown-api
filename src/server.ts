@@ -46,7 +46,11 @@ await app.register(rawBody, {
   routes: [],
 });
 
-Starting Container
+await app.register(cors, {
+  origin: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true,
+});
 > seenshown-api@0.1.0 start
 > node --import=tsx/esm src/server.ts
 npm warn config production Use `--omit=dev` instead.

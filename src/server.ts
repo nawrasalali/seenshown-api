@@ -47,11 +47,7 @@ await app.register(rawBody, {
 });
 
 await app.register(cors, {
-  await app.register(cors, {
-  origin: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true,
-});
+  origin: (origin, cb) => {
     const allowed = [
       'https://app.seenshown.com',
       'https://partners.seenshown.com',

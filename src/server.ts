@@ -48,7 +48,7 @@ await app.register(rawBody, {
 
 await app.register(cors, {
   origin: (origin, cb) => {
-    const allowed = [
+    const allowed = ['https://seenshown-core.vercel.app',
       'https://app.seenshown.com',
       'https://partners.seenshown.com',
       'https://seenshown.com',

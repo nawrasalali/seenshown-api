@@ -51,12 +51,6 @@ await app.register(cors, {
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
 });
-> seenshown-api@0.1.0 start
-> node --import=tsx/esm src/server.ts
-npm warn config production Use `--omit=dev` instead.
-(node:25) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-});
 
 // ---- Template registry (exact IDs matching /templates/ directory) ----
 const TEMPLATE_IDS = [

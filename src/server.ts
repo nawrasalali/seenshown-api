@@ -36,3 +36,16 @@ app.post('/v1/simulate', async (req, reply) => {
     } catch(err) {
           app.log.error(err);
           return reply.send({ templateId: 'virus_infecting_cell', confidence: 0.5, parameterOverrides: {}, narration: [{tick:0,text:'Watch how this biological process unfolds.'},{tick:600,text:'Observe the entities interacting.'},{tick:1400,text:'This mechanism drives real-world biology.'}], fallback: true, domain: 
+
+              }
+                            });
+
+    app.post('/webhooks/stripe', async (req, reply) => reply.send({ received: true }));
+        app.post('/v1/partner/apply', async (req, reply) => reply.send({ success: true }));
+        app.post('/v1/embed/validate', async (req, reply) => reply.send({ valid: true }));
+        app.post('/v1/checkout', async (req, reply) => reply.code(400).send({ error: 'Not configured' }));
+
+    const port = parseInt(process.env.PORT || '3001');
+        await app.listen({ port, host: '0.0.0.0' });
+        console.log('SeenShown API running on port ' + port);
+        

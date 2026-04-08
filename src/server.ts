@@ -13,7 +13,9 @@ app.post('/v1/simulate',async(req:any,reply:any)=>{
   if(!q||q.length<2)return reply.code(400).send({error:'Query too short'});
   try{
     let id=(b.templateId&&T.includes(b.templateId))?b.templateId:null;
-    if(!id){const m=await anthropic.messages.create({model:'claude-sonnet-4-20250514',max_tokens:200,system:'Return ONLY valid JSON.',messages:[{role:'user',content:'Templates:'+T.join(',')+'\nQuery:'+JSON.stringify(q.slice(0,200))+'\nReturn:{"templateId":"<id>"}'}]});try{const p=JSON.parse(m.content[0].text.trim().replace(/```(?:json)?/g,'').trim());id=T.includes(p.templateId)?p.templateId:'virus_infecting_cell';}catch{id='virus_infecting_cell';}}
+    if(!id){const m=await anthropic.messages.create({model:'claude-sonnet-4-20250514',max_tokens:200,system:'Return ONLY valid JSON.',messages:[{role:'user',content:'Templates:'+T.join(',')+'
+Query:'+JSON.stringify(q.slice(0,200))+'
+Return:{"templateId":"<id>"}'}]});try{const p=JSON.parse(m.content[0].text.trim().replace(/```(?:json)?/g,'').trim());id=T.includes(p.templateId)?p.templateId:'virus_infecting_cell';}catch{id='virus_infecting_cell';}}
     const nm=await anthropic.messages.create({model:'claude-sonnet-4-20250514',max_tokens:500,system:'Return ONLY a JSON array.',messages:[{role:'user',content:'Sim:'+id+' Query:'+q.slice(0,80)+' Return:[{"phase":0,"text":"..."},{"phase":1,"text":"..."},{"phase":2,"text":"..."}]'}]});
     let n=[];try{n=JSON.parse(nm.content[0].text.trim().replace(/```(?:json)?/g,'').trim());}catch{}
     return reply.send({templateId:id,confidence:0.9,parameterOverrides:{},narration:n,fallback:false,domain:D[id]||'biology'});
@@ -26,7 +28,9 @@ app.post('/v1/query',async(req:any,reply:any)=>{
   if(!question||question.length<3)return reply.code(400).send({error:'Question too short'});
   if(mode==='fast'){
     try{
-      const p='Templates:'+T.map((t,i)=>i+':'+t).join(',')+'\nQuestion:'+JSON.stringify(question.slice(0,300))+'\nReturn JSON:{"templateId":"<id>","matchLabel":"<2-5 words>","domain":"<biology|social|physics|chemistry|neuroscience|finance|climate|immunology>","confidence":0.9,"narration":[{"phase":0,"text":"<45w answering the question>"},{"phase":1,"text":"<45w deeper mechanism>"},{"phase":2,"text":"<45w outcome>"}],"explanation":"<2-3 sentences answering question>","keypoints":[{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"}]}';
+      const p='Templates:'+T.map((t,i)=>i+':'+t).join(',')+'
+Question:'+JSON.stringify(question.slice(0,300))+'
+Return JSON:{"templateId":"<id>","matchLabel":"<2-5 words>","domain":"<biology|social|physics|chemistry|neuroscience|finance|climate|immunology>","confidence":0.9,"narration":[{"phase":0,"text":"<45w answering the question>"},{"phase":1,"text":"<45w deeper mechanism>"},{"phase":2,"text":"<45w outcome>"}],"explanation":"<2-3 sentences answering question>","keypoints":[{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"}]}';
       const msg=await anthropic.messages.create({model:'claude-sonnet-4-20250514',max_tokens:1200,system:'SeenShown AI: pick best simulation, write narration. Return ONLY valid JSON.',messages:[{role:'user',content:p}]});
       const r=JSON.parse(msg.content[0].text.trim().replace(/```(?:json)?/g,'').trim());
       if(!T.includes(r.templateId))r.templateId='virus_infecting_cell';
@@ -38,7 +42,8 @@ app.post('/v1/query',async(req:any,reply:any)=>{
   (async()=>{
     try{
       jobs[jobId].status='processing';
-      const p='Create particle simulation for:'+JSON.stringify(question.slice(0,300))+'\nReturn JSON:{"title":"<title>","domain":"<domain>","narration":[{"phase":0,"text":"<50w>"},{"phase":1,"text":"<50w>"},{"phase":2,"text":"<50w>"}],"explanation":"<3 sentences>","keypoints":[{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"}],"visualSpec":{"background":"<hex>","primaryColor":"<hex>","secondaryColor":"<hex>","accentColor":"<hex>"},"drawCode":"// Canvas2D. Params:ctx,W,H,t(0-3000),phase(0-2). 25 lines max.\\nconst bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,\'#02040e\');bg.addColorStop(1,\'#040810\');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);"}';
+      const p='Create particle simulation for:'+JSON.stringify(question.slice(0,300))+'
+Return JSON:{"title":"<title>","domain":"<domain>","narration":[{"phase":0,"text":"<50w>"},{"phase":1,"text":"<50w>"},{"phase":2,"text":"<50w>"}],"explanation":"<3 sentences>","keypoints":[{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"},{"icon":"<emoji>","title":"<term>","detail":"<20w>"}],"visualSpec":{"background":"<hex>","primaryColor":"<hex>","secondaryColor":"<hex>","accentColor":"<hex>"},"drawCode":"// Canvas2D. Params:ctx,W,H,t(0-3000),phase(0-2). 25 lines max.\nconst bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#02040e');bg.addColorStop(1,'#040810');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);"}';
       const msg=await anthropic.messages.create({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'SeenShown simulation designer. Return ONLY valid JSON.',messages:[{role:'user',content:p}]});
       const r=JSON.parse(msg.content[0].text.trim().replace(/```(?:json)?/g,'').trim());
       jobs[jobId]={...jobs[jobId],status:'done',result:{mode:'custom',question,title:r.title||question,domain:r.domain||'biology',narration:r.narration||[],explanation:r.explanation||'',keypoints:r.keypoints||[],visualSpec:r.visualSpec||{},drawCode:r.drawCode||"ctx.fillStyle='#02040e';ctx.fillRect(0,0,W,H);",isCustom:true},completed:Date.now()};
@@ -52,6 +57,17 @@ app.get('/v1/query/job/:jobId',async(req:any,reply:any)=>{
   if(job.status==='done')return reply.send({status:'done',result:job.result});
   if(job.status==='error')return reply.send({status:'error',error:job.error});
   return reply.send({status:job.status});
+});
+app.post('/v1/investor/register',async(req:any,reply:any)=>{
+  const{name,email,amount,message}=req.body as any;
+  console.log('[INVESTOR]',{name,email,amount,message,ts:new Date().toISOString()});
+  return reply.send({ok:true,message:'Received. We will contact you within 24 hours.'});
+});
+app.post('/v1/referral/register',async(req:any,reply:any)=>{
+  const{name,email,referrerCode}=req.body as any;
+  console.log('[REFERRAL]',{name,email,referrerCode,ts:new Date().toISOString()});
+  const code='SS-'+Math.random().toString(36).substring(2,8).toUpperCase();
+  return reply.send({ok:true,referralCode:code});
 });
 app.post('/webhooks/stripe',async(_:any,r:any)=>r.send({received:true}));
 app.post('/v1/partner/apply',async(_:any,r:any)=>r.send({success:true}));
